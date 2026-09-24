@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nanovest Signal Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">⌁</div><div><strong>Prediction Lab</strong><span>Stock prediction backtester</span></div></div>
+        <nav><span class="nav-group">WORKSPACE</span>
+          <button class="nav-item active" data-view="workspace"><span>▦</span> Upload &amp; results</button>
+          <span class="nav-group">MODEL</span>
+          <button class="nav-item" data-view="allocation"><span>☷</span> Configuration</button>
+        </nav>
+        <div class="sidebar-note"><span>ACTIVE CONFIGURATION</span><strong id="sidebar-config">Balanced Signal</strong><small>F 40 · T 40 · C 20</small></div>
+      </aside>
+      <main>
+        <header class="topbar"><div class="crumb"><span>Prediction Lab</span><b>›</b><strong id="page-title">Upload &amp; results</strong></div><div class="top-actions"><span id="validation-chip" class="status good">Weights 100%</span><button class="button secondary allocation-only" id="reset-all">Reset</button><button class="button primary allocation-only" id="save-config">Save configuration</button></div></header>
+
+        <section id="workspace" class="view active">
+          <div class="intro"><div><h2>Prediction data</h2><p>Upload CSV or Excel inputs, then run the prediction to calculate signals.</p></div><div class="intro-actions"><button id="load-sample" class="button secondary">Load sample data</button><button id="submit-data" class="button primary">Run prediction</button></div></div>
+          <div id="upload-grid" class="upload-grid"></div>
+          <div class="info-banner"><span>ⓘ</span><div><strong>Configuration-first prototype</strong><p>Data is stored in this browser for preview and future engine integration. Uploading does not send files anywhere.</p></div></div>
+          <div id="results-panel" hidden><div class="intro results-intro"><div><h2>Backtest results</h2><p>Compare directional signals with actual returns using the current allocation. Forward period: <b id="forward-period-result">20 trading days</b>.</p></div><button id="run-evaluation" class="button secondary">Refresh results</button></div>
+          <div class="warning-banner"><span>△</span><p>This is a prototype scoring rule for configuration testing, not financial advice or a production prediction model.</p></div>
+          <div id="metrics" class="metrics"></div>
+          <div class="card"><div class="card-head"><div><h3>Prediction vs. actual</h3><p>Signals use the submitted inputs and current allocation. Actual outcome direction uses a ±<b id="actual-threshold-note">1%</b> return threshold.</p></div><span id="record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Signal</th><th>Actual return</th><th>Result</th></tr></thead><tbody id="evaluation-body"></tbody></table></div></div></div>
+        </section>
+
+        <section id="allocation" class="view">
+          <div class="intro"><div><h2>Configuration</h2><p>Set signal cutoffs and allocation weights for the prediction composite.</p></div><button id="normalize" class="button secondary">Normalize to 100%</button></div>
+          <div class="allocation-layout"><div><div class="card threshold-card"><div class="card-head"><div><h3>Signal classification cutoffs</h3><p>Composite scores range from 0 to 100.</p></div></div><div class="threshold-controls"><label>Bearish at or below <span><input id="bearish-threshold" type="number" min="0" max="99" step="1"> %</span></label><label>Bullish at or above <span><input id="bullish-threshold" type="number" min="1" max="100" step="1"> %</span></label><label>Actual return threshold <span><input id="actual-threshold" type="number" min="0" max="100" step="0.1"> %</span></label><label>Forward Period <span><select id="forward-period-select"><option value="5">5 Trading Days</option><option value="10">10 Trading Days</option><option value="20" selected>20 Trading Days</option><option value="60">60 Trading Days</option><option value="custom">Custom</option></select></span></label><label id="custom-forward-wrap" hidden>Custom trading days <span><input id="custom-forward-period" type="number" min="1" max="10000" step="1" value="20"> days</span></label></div><p class="threshold-help">Composite cutoffs classify model signals; the actual return threshold classifies market outcomes. Returns above +threshold are Bullish, below −threshold are Bearish, and returns within that range are Neutral. The bearish composite cutoff must stay below the bullish cutoff.</p></div><div class="card main-weights"><div class="card-head"><div><h3>Level 1 — main categories</h3><p>All three categories must add up to 100%.</p></div><span id="main-total" class="status">Total 100%</span></div><div id="main-controls"></div></div><div id="category-accordions"></div></div><aside><div id="allocation-chart" class="card allocation-chart"></div><div id="summary" class="summary-card"></div></aside></div>
+        </section>
+
+        <div id="toast" class="toast"></div>
+      </main>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
