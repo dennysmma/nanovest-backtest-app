@@ -41,16 +41,16 @@
         </section>
 
         <section id="weekly" class="view">
-          <div class="intro"><div><h2>NanoMind Updates</h2><p>Weekly market intelligence grounded in linked public news. Unclear company matches and mixed signals are excluded.</p></div><button id="weekly-refresh" class="button primary">Refresh update</button></div>
+          <div class="intro"><div><h2>NanoMind Updates</h2><p>Weekly market intelligence grounded in linked public news. Unmatched companies are excluded; mixed or unclear outlooks remain labeled without a directional guess.</p></div><button id="weekly-refresh" class="button primary">Refresh update</button></div>
           <div class="weekly-meta card"><div><span class="eyebrow">LATEST UPDATE</span><strong id="weekly-updated">No update yet</strong></div><div><span class="eyebrow">NEXT CHECK</span><strong id="weekly-next">When this page is opened</strong></div><span id="weekly-status" class="status">Waiting for news</span></div>
-          <div class="card weekly-brief"><div class="card-head"><div><h3>Executive News Brief</h3><p>Prioritized headlines from the past seven days</p></div></div><div id="weekly-brief-body" class="brief-body"><p class="muted">Fetching public market news…</p></div></div>
+          <div class="card weekly-brief"><div class="card-head"><div><h3>Executive News Brief</h3><p>Prioritized headlines from the past seven days</p></div></div><p id="weekly-summary" class="executive-summary">Preparing the latest market summary…</p><div id="weekly-brief-body" class="brief-body"><p class="muted">Fetching public market news…</p></div></div>
           <div class="card weekly-impact"><div class="card-head"><div><h3>Market Impact Analysis — Top 10 Tickers</h3><p>Ranked by corroborating relevant headlines; outlook is shown only when the source language indicates a clear direction.</p></div><span id="weekly-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Company</th><th>Impact</th><th>Outlook</th><th>News Connection</th></tr></thead><tbody id="weekly-ticker-rows"><tr><td colspan="5" class="muted">News has not been loaded.</td></tr></tbody></table></div></div>
-          <div class="card weekly-history"><div class="card-head"><div><h3>Update history</h3><p>Saved weekly snapshots on this browser</p></div><label class="history-select-label" for="weekly-history-select">View update</label><select id="weekly-history-select"><option value="latest">Latest update</option></select></div><div id="weekly-history-detail" class="history-detail"></div></div>
+          <div class="card weekly-history"><div class="card-head"><div><h3>Update history</h3><p>Saved snapshots on this browser</p></div><label class="history-select-label" for="weekly-history-select">View update</label><select id="weekly-history-select"><option value="latest">Latest update</option></select></div><div id="weekly-history-list" class="history-list"></div><div id="weekly-history-detail" class="history-detail"></div></div>
           <div class="info-banner weekly-note"><span>ⓘ</span><div><strong>Refresh schedule</strong><p>This browser checks for a new update when this page is opened, at most once every seven days. The page must be open to fetch news; snapshots stay in this browser. A shared or background schedule requires a server-side news service.</p></div></div>
         </section>
         <div id="toast" class="toast"></div>
       </main>
     </div>
-    <script src="./app.js?v=weekly-intelligence-3"></script>
+    <script src="./app.js?v=weekly-intelligence-4"></script>
   </body>
 </html>
