@@ -16,7 +16,7 @@ CSV uploads work fully offline. Excel (`.xlsx` / `.xls`) previews use the SheetJ
 
 ## Weekly Updated
 
-The **Weekly Updated** page reads the public Google News RSS search feed through the RSS2JSON public API, selects headlines from the last seven days, and links every listed ticker to its supporting articles. Tickers are matched against a small explicit company alias list. Bullish or bearish outlooks require a directional headline keyword; conflicting or unmatched evidence is left out. The browser checks on page load, no more than once every seven days, and keeps up to 104 weekly snapshots in that browser's local storage. Use **Refresh update** to fetch sooner.
+The **Weekly Updated** page searches public Google News RSS coverage through the RSS2JSON public API, selects headlines from the last seven days, and links each tracked ticker to related articles. It ranks up to 10 matches by headline count. Bullish or bearish outlooks require directional wording in the headlines; mixed and non-directional coverage stays visible with an explicit label. Unmatched companies are excluded. The browser checks on page load, no more than once every seven days, and keeps up to 104 snapshots in that browser's local storage. Manual refreshes are saved as separate snapshots.
 
 This static prototype needs an internet connection and a browser that permits the public feed request. It cannot refresh while closed or share history between browsers. A server-side scheduled feed is needed for unattended or shared updates.
 
