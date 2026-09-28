@@ -23,3 +23,7 @@ This static prototype needs an internet connection and a browser that permits th
 ## Evaluation rule
 
 The composite score is the weighted mean of the three category scores. A score of 55 or higher is **Bullish**, 45 or lower is **Bearish**, and all other scores are **Neutral**. Accuracy / win rate compares that direction to the supplied actual return. This is deliberately transparent prototype behavior and not financial advice or a predictive trading system.
+
+## Back Test and Forward Test
+
+**Back Test** compares historical signals with realized returns and can use uploaded price history. **Forward Test** uses its own Fundamental, Technical, and Catalyst uploads to calculate current signals with the active configuration; it does not require or display future prices or realized outcomes. A ticker must appear in all three Forward Test files. CSV and Excel uploads are held in this browser.
