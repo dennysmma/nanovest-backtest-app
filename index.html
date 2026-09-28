@@ -16,6 +16,7 @@
         <div class="brand"><div class="brand-mark">⌁</div><div><strong>Prediction Lab</strong><span>Stock prediction backtester</span></div></div>
         <nav><span class="nav-group">WORKSPACE</span>
           <button class="nav-item active" data-view="workspace"><span>▦</span> Upload &amp; results</button>
+          <button class="nav-item" data-view="weekly"><span>◷</span> Weekly Updated</button>
           <span class="nav-group">MODEL</span>
           <button class="nav-item" data-view="allocation"><span>☷</span> Configuration</button>
         </nav>
@@ -39,9 +40,17 @@
           <div class="allocation-layout"><div><div class="card threshold-card"><div class="card-head"><div><h3>Signal classification cutoffs</h3><p>Composite scores range from 0 to 100.</p></div></div><div class="threshold-controls"><label>Bearish at or below <span><input id="bearish-threshold" type="number" min="0" max="99" step="1"> %</span></label><label>Bullish at or above <span><input id="bullish-threshold" type="number" min="1" max="100" step="1"> %</span></label><label>Actual return threshold <span><input id="actual-threshold" type="number" min="0" max="100" step="0.1"> %</span></label><label>Forward Period <span><select id="forward-period-select"><option value="5">5 Trading Days</option><option value="10">10 Trading Days</option><option value="20" selected>20 Trading Days</option><option value="60">60 Trading Days</option><option value="custom">Custom</option></select></span></label><label id="custom-forward-wrap" hidden>Custom trading days <span><input id="custom-forward-period" type="number" min="1" max="10000" step="1" value="20"> days</span></label></div><p class="threshold-help">Composite cutoffs classify model signals; the actual return threshold classifies market outcomes. Returns above +threshold are Bullish, below −threshold are Bearish, and returns within that range are Neutral. The bearish composite cutoff must stay below the bullish cutoff.</p></div><div class="card main-weights"><div class="card-head"><div><h3>Level 1 — main categories</h3><p>All three categories must add up to 100%.</p></div><span id="main-total" class="status">Total 100%</span></div><div id="main-controls"></div></div><div id="category-accordions"></div></div><aside><div id="allocation-chart" class="card allocation-chart"></div><div id="summary" class="summary-card"></div></aside></div>
         </section>
 
+        <section id="weekly" class="view">
+          <div class="intro"><div><h2>NanoMind Updates</h2><p>Weekly market intelligence grounded in linked public news. Unclear company matches and mixed signals are excluded.</p></div><button id="weekly-refresh" class="button primary">Refresh update</button></div>
+          <div class="weekly-meta card"><div><span class="eyebrow">LATEST UPDATE</span><strong id="weekly-updated">No update yet</strong></div><div><span class="eyebrow">NEXT CHECK</span><strong id="weekly-next">When this page is opened</strong></div><span id="weekly-status" class="status">Waiting for news</span></div>
+          <div class="card weekly-brief"><div class="card-head"><div><h3>Executive News Brief</h3><p>Prioritized headlines from the past seven days</p></div></div><div id="weekly-brief-body" class="brief-body"><p class="muted">Fetching public market news…</p></div></div>
+          <div class="card weekly-impact"><div class="card-head"><div><h3>Market Impact Analysis — Top 10 Tickers</h3><p>Ranked by corroborating relevant headlines; outlook is shown only when the source language indicates a clear direction.</p></div><span id="weekly-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Company</th><th>Impact</th><th>Outlook</th><th>News Connection</th></tr></thead><tbody id="weekly-ticker-rows"><tr><td colspan="5" class="muted">News has not been loaded.</td></tr></tbody></table></div></div>
+          <div class="card weekly-history"><div class="card-head"><div><h3>Update history</h3><p>Saved weekly snapshots on this browser</p></div><label class="history-select-label" for="weekly-history-select">View update</label><select id="weekly-history-select"><option value="latest">Latest update</option></select></div><div id="weekly-history-detail" class="history-detail"></div></div>
+          <div class="info-banner weekly-note"><span>ⓘ</span><div><strong>Refresh schedule</strong><p>This browser checks for a new update when this page is opened, at most once every seven days. The page must be open to fetch news; snapshots stay in this browser. A shared or background schedule requires a server-side news service.</p></div></div>
+        </section>
         <div id="toast" class="toast"></div>
       </main>
     </div>
-    <script src="./app.js?v=492fe09"></script>
+    <script src="./app.js?v=weekly-intelligence-1"></script>
   </body>
 </html>
