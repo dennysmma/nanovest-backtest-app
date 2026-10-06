@@ -18,8 +18,10 @@
           <button class="nav-item active" data-view="workspace" data-title="Back Test"><span>▦</span> Back Test</button>
           <button class="nav-item" data-view="forward" data-title="Forward Test"><span>➜</span> Forward Test</button>
           <button class="nav-item" data-view="weekly" data-title="Weekly Updated"><span>◷</span> Weekly Updated</button>
+          <button class="nav-item" data-view="analyst" data-title="Analyst Signal"><span>◎</span> Analyst Signal</button>
           <span class="nav-group">MODEL</span>
           <button class="nav-item" data-view="allocation"><span>☷</span> Configuration</button>
+          <button class="nav-item" data-view="analyst-config" data-title="Analyst configuration"><span>⚙</span> Analyst configuration</button>
         </nav>
         <div class="sidebar-note"><span>ACTIVE CONFIGURATION</span><strong id="sidebar-config">Balanced Signal</strong><small>F 40 · T 40 · C 20</small></div>
       </aside>
@@ -57,6 +59,16 @@
           <div class="card weekly-impact"><div class="card-head"><div><h3>Market Impact Analysis — Top 10 Tickers</h3><p>Ranked by corroborating relevant headlines; outlook is shown only when the source language indicates a clear direction.</p></div><span id="weekly-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Company</th><th>Impact</th><th>Outlook</th><th>News Connection</th></tr></thead><tbody id="weekly-ticker-rows"><tr><td colspan="5" class="muted">News has not been loaded.</td></tr></tbody></table></div></div>
           <div class="card weekly-history"><div class="card-head"><div><h3>Update history</h3><p>Saved snapshots on this browser</p></div><label class="history-select-label" for="weekly-history-select">View update</label><select id="weekly-history-select"><option value="latest">Latest update</option></select></div><div id="weekly-history-list" class="history-list"></div><div id="weekly-history-detail" class="history-detail"></div></div>
           <div class="info-banner weekly-note"><span>ⓘ</span><div><strong>Refresh schedule</strong><p>This browser checks for a new update when this page is opened, at most once every seven days. The page must be open to fetch news; snapshots stay in this browser. A shared or background schedule requires a server-side news service.</p></div></div>
+        </section>
+        <section id="analyst" class="view">
+          <div class="intro"><div><h2>Analyst Signal</h2><p>Combine direction and price scores from financial media outlets into a forward signal or historical backtest.</p></div><button id="run-analyst" class="button primary">Generate prediction</button></div>
+          <div class="info-banner"><span>ⓘ</span><div><strong>Upload analyst score files</strong><p>CSV or Excel files need a Ticker/Symbol column and a Direction_Score or Price_Score column (0–100). Optional Date and Actual_Return columns enable historical backtesting.</p></div></div>
+          <div id="analyst-upload-grid" class="upload-grid"></div><p id="analyst-message" class="muted"></p>
+          <div id="analyst-results" hidden><div id="analyst-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3>Analyst predictions</h3><p>Weighted composite score and configured direction classification.</p></div><span id="analyst-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Direction score</th><th>Price score</th><th>Composite</th><th>Prediction</th><th>Actual return</th><th>Actual direction</th><th>Backtest</th></tr></thead><tbody id="analyst-body"></tbody></table></div></div></div>
+        </section>
+        <section id="analyst-config" class="view">
+          <div class="intro"><div><h2>Analyst configuration</h2><p>Set how media direction and price scores combine, and choose bullish and bearish cutoffs.</p></div><button id="save-analyst-config" class="button primary">Save configuration</button></div>
+          <div class="card threshold-card"><div class="card-head"><div><h3>Analyst score allocation</h3><p>Weights must total 100%. Scores are normalized to a 0–100 scale.</p></div><span id="analyst-total" class="status good">Total 100%</span></div><div class="threshold-controls"><label>Direction score allocation <span><input id="direction-weight" type="number" min="0" max="100" step="1"> %</span></label><label>Price score allocation <span><input id="price-weight" type="number" min="0" max="100" step="1"> %</span></label><label>Bearish at or below <span><input id="analyst-bearish" type="number" min="0" max="99" step="1"> %</span></label><label>Bullish at or above <span><input id="analyst-bullish" type="number" min="1" max="100" step="1"> %</span></label></div><p class="threshold-help">Scores at or above the bullish cutoff are Bullish; scores at or below the bearish cutoff are Bearish; scores between them are Neutral.</p></div>
         </section>
         <div id="toast" class="toast"></div>
       </main>
