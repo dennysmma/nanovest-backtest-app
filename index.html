@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=gate-config-3" />
+    <link rel="stylesheet" href="./styles.css?v=gate-config-4" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
@@ -32,7 +32,7 @@
 
         <section id="workspace" class="view active">
           <div class="intro"><div><h2>Back test data</h2><p>Upload historical inputs and outcomes to evaluate prediction signals.</p></div><div class="intro-actions"><button id="load-sample" class="button secondary">Load sample data</button><button id="submit-data" class="button primary">Run backtest</button></div></div>
-          <div class="backtest-result-controls"><div class="analyst-tabs" role="tablist" aria-label="Backtest result mode"><button id="baseline-results-tab" class="analyst-tab active" type="button" role="tab" aria-selected="true" aria-controls="baseline-results-panel">Baseline · No gate</button><button id="gated-results-tab" class="analyst-tab" type="button" role="tab" aria-selected="false" aria-controls="gated-results-panel">With Gate System</button></div><label>Gate System <select id="backtest-gate-select" aria-label="Gate System for backtest results"></select></label></div>
+          <div class="backtest-result-controls"><div class="backtest-result-navigation"><div class="eyebrow">BACKTEST RESULT VIEW</div><p>Each tab opens its own performance metrics and full results table.</p><div class="analyst-tabs backtest-result-tabs" role="tablist" aria-label="Backtest result mode"><button id="baseline-results-tab" class="analyst-tab active" type="button" role="tab" aria-selected="true" aria-controls="baseline-results-panel"><span>Baseline</span><small>All records · no gates</small></button><button id="gated-results-tab" class="analyst-tab" type="button" role="tab" aria-selected="false" aria-controls="gated-results-panel"><span>With Gate System</span><small>Records evaluated by selected gate</small></button></div></div><label>Gate System <select id="backtest-gate-select" aria-label="Gate System for backtest results"></select></label></div>
           <div id="backtest-results-empty" class="backtest-results-empty" role="status">Upload your backtest inputs, then select <b>Run backtest</b> to compare baseline results with the selected Gate System.</div>
           <div id="upload-grid" class="upload-grid"></div>
           <div class="info-banner"><span>ⓘ</span><div><strong>Configuration-first prototype</strong><p>Data is stored in this browser for preview and future engine integration. Uploading does not send files anywhere.</p></div></div>
