@@ -60,7 +60,7 @@ function gateChanged(message='Saved locally'){
 }
 function renderGateSystemSelect(){
   const select=$('#gate-system-select');if(!select)return;
-  select.innerHTML=gateSystems.map(system=>`<option value="${esc(system.id)}">${esc(system.name)}</option>`).join('');select.value=activeGateSystem.id;
+  const options=gateSystems.map(system=>`<option value="${esc(system.id)}">${esc(system.name)}</option>`).join('');select.innerHTML=options;select.value=activeGateSystem.id;const backtestSelect=$('#backtest-gate-select');if(backtestSelect){backtestSelect.innerHTML=options;backtestSelect.value=activeGateSystem.id}
   $('#gate-system-name').value=activeGateSystem.name;$('#delete-gate-system').disabled=gateSystems.length<2;
 }
 function gateGroupModeText(mode){return({and:'AND — all rules pass',or:'OR — any rule passes',at_least:'Minimum passing rules',custom:'Custom AND / OR connectors'})[mode]||'AND — all rules pass'}
@@ -197,8 +197,32 @@ function gateStats(records){
   const average=returns.length?returns.reduce((sum,value)=>sum+value,0)/returns.length:null;const compounded=returns.reduce((product,value)=>product*(1+value/100),1)-1;
   return{evaluated:records.length,accuracy:evaluated.length?`${Math.round(correct/evaluated.length*100)}%`:'—',winRate:active.length?`${Math.round(wins/active.length*100)}%`:'—',average:average===null?'—':`${average>0?'+':''}${average.toFixed(2)}%`,compounded:returns.length?`${compounded>=0?'+':''}${(compounded*100).toFixed(2)}%`:'—'};
 }
+let backtestResultMode='baseline';
+function showBacktestResultMode(mode){
+  backtestResultMode=mode==='gated'?'gated':'baseline';const baseline=backtestResultMode==='baseline';
+  $('#baseline-results-tab').classList.toggle('active',baseline);$('#gated-results-tab').classList.toggle('active',!baseline);$('#baseline-results-tab').setAttribute('aria-selected',String(baseline));$('#gated-results-tab').setAttribute('aria-selected',String(!baseline));$('#baseline-results-panel').hidden=!baseline;$('#gated-results-panel').hidden=baseline;
+}
+function renderBacktestGateResults(){
+  const summary=$('#backtest-results-comparison');if(!summary)return;
+  if(!submittedRecords?.length){summary.innerHTML='<span class="muted">Run a backtest to compare baseline and gated results.</span>';$('#gated-metrics').innerHTML='';$('#gate-backtest-body').innerHTML='';return}
+  const system=gateSystems.find(item=>item.id===activeGateSystem.id)||activeGateSystem,decisions=submittedRecords.map(record=>({record,result:evaluateGateSystem(record,system)})),kept=decisions.filter(item=>item.result.passed).map(item=>item.record),baselineStats=gateStats(submittedRecords),gatedStats=gateStats(kept);
+  const delta=(before,after)=>{const a=gateNumeric(before),b=gateNumeric(after);if(a===null||b===null)return'No comparable outcomes';const difference=b-a;return`${difference>0?'+':''}${difference.toFixed(2)} percentage points`};
+  summary.innerHTML=`<div class="backtest-compare-heading"><b>Baseline vs. ${esc(system.name)}</b><span>${kept.length} of ${submittedRecords.length} records kept · ${submittedRecords.length-kept.length} excluded</span></div><div class="backtest-compare-grid"><div><span>Signal accuracy</span><b>${baselineStats.accuracy} → ${gatedStats.accuracy}</b><small>${delta(baselineStats.accuracy,gatedStats.accuracy)}</small></div><div><span>Win rate</span><b>${baselineStats.winRate} → ${gatedStats.winRate}</b><small>${delta(baselineStats.winRate,gatedStats.winRate)}</small></div><div><span>Average return</span><b>${baselineStats.average} → ${gatedStats.average}</b><small>${delta(baselineStats.average,gatedStats.average)}</small></div></div>`;
+  const evaluated=kept.filter(record=>record.actual!==null&&Number.isFinite(Number(record.actual))),active=evaluated.filter(record=>record.signal==='Bullish'||record.signal==='Bearish'),bullish=active.filter(record=>record.signal==='Bullish'),bearish=active.filter(record=>record.signal==='Bearish'),bullishWins=bullish.filter(record=>record.correct).length,bearishWins=bearish.filter(record=>record.correct).length;
+  $('#gated-backtest-title').textContent=`${system.name} · Gate System results`;
+  $('#gated-record-count').textContent=`${kept.length} kept · ${decisions.length-kept.length} rejected`;
+  $('#gated-metrics').innerHTML=[
+    ['Records kept',`${kept.length} / ${decisions.length}`,`${decisions.length-kept.length} rejected by the Gate System`],
+    ['Overall Accuracy',gatedStats.accuracy,`${evaluated.filter(record=>record.correct).length} / ${evaluated.length} three-class matches`],
+    ['Signal Win Rate',gatedStats.winRate,`${active.filter(record=>record.correct).length} / ${active.length} Bullish/Bearish only`],
+    ['Bullish Win Rate',bullish.length?`${Math.round(bullishWins/bullish.length*100)}%`:'—',`${bullishWins} / ${bullish.length} Bullish signals`],
+    ['Bearish Win Rate',bearish.length?`${Math.round(bearishWins/bearish.length*100)}%`:'—',`${bearishWins} / ${bearish.length} Bearish signals`],
+    ['Average Return',gatedStats.average,`${evaluated.length} kept records with actual returns`]
+  ].map(item=>`<div class="card metric"><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
+  $('#gate-backtest-body').innerHTML=decisions.map(({record,result})=>`<tr class="${result.passed?'':'gate-rejected-row'}"><td>${esc(record.date||'—')}</td><td><b>${esc(record.ticker)}</b></td><td class="num">${Number(record.fundamental).toFixed(1)}</td><td class="num">${Number(record.technical).toFixed(1)}</td><td class="num">${Number(record.catalyst).toFixed(1)}</td><td class="num"><b>${Number(record.composite).toFixed(1)}</b></td><td><span class="signal ${String(record.signal||'neutral').toLowerCase()}">${esc(record.signal||'—')}</span></td><td><span class="result ${result.passed?'correct':'incorrect'}">${result.passed?'Kept':'Rejected'}</span></td><td class="gate-detail-cell">${esc(result.detail)}</td><td class="num">${record.actual!==null&&Number.isFinite(Number(record.actual))?`${Number(record.actual)>0?'+':''}${Number(record.actual).toFixed(2)}%`:'—'}</td><td>${record.actualSignal?`<span class="signal ${record.actualSignal.toLowerCase()}">${esc(record.actualSignal)}</span>`:'—'}</td><td><span class="result ${record.actual!==null?(record.correct?'correct':'incorrect'):'neutral'}">${record.actual!==null?(record.correct?'Correct':'Incorrect'):'Awaiting actual'}</span></td></tr>`).join('');
+}
 function renderGateComparison(){
-  const empty=$('#gate-comparison-empty'),wrap=$('#gate-comparison-wrap'),rows=$('#gate-comparison-rows'),decisionCard=$('#gate-decision-card');if(!empty||!wrap)return;
+  const empty=$('#gate-comparison-empty'),wrap=$('#gate-comparison-wrap'),rows=$('#gate-comparison-rows'),decisionCard=$('#gate-decision-card');if(!empty||!wrap)return;renderBacktestGateResults();
   if(!submittedRecords?.length){empty.hidden=false;wrap.hidden=true;decisionCard.hidden=true;return}
   empty.hidden=true;wrap.hidden=false;
   const systems=gateSystems.map(system=>system.id===activeGateSystem.id?activeGateSystem:system);const unique=systems.filter((system,index,list)=>list.findIndex(item=>item.id===system.id)===index);
@@ -216,6 +240,7 @@ const renderAnalystBeforeGate=renderAnalystResults;
 renderAnalystResults=function(...args){const result=renderAnalystBeforeGate(...args);renderGateComparison();return result};
 
 $('#gate-system-select').onchange=event=>{activeGateSystem=gateSystems.find(system=>system.id===event.target.value)||gateSystems[0];renderGateConfiguration()};
+$('#backtest-gate-select').onchange=event=>{activeGateSystem=gateSystems.find(system=>system.id===event.target.value)||gateSystems[0];renderGateConfiguration()};
 $('#gate-system-name').onchange=event=>{const name=event.target.value.trim();if(!name){event.target.value=activeGateSystem.name;return toast('Enter a Gate System name')}activeGateSystem.name=name;gateChanged()};
 $('#save-gate-system').onclick=()=>{const name=$('#gate-system-name').value.trim();if(!name)return toast('Enter a Gate System name');activeGateSystem.name=name;persistGateSystems('Saved');toast('Gate System saved in this browser')};
 $('#new-gate-system').onclick=()=>{const copy=gateClone(activeGateSystem);copy.id=makeGateId();copy.name=`${activeGateSystem.name} copy`;gateSystems.push(copy);activeGateSystem=copy;persistGateSystems('New system saved locally');renderGateConfiguration();toast('New Gate System created')};
@@ -225,4 +250,5 @@ $('#gate-group-combine').onchange=event=>{activeGateSystem.combineGroups=event.t
 $('#gate-min-groups').onchange=event=>{activeGateSystem.minPassingGroups=Math.max(1,Number(event.target.value)||1);event.target.value=activeGateSystem.minPassingGroups;gateChanged()};
 $('#add-gate-rule').onclick=()=>openGateRule();$('#gate-rule-form').onsubmit=event=>{event.preventDefault();saveGateRuleFromEditor()};$('#gate-rule-close').onclick=()=>$('#gate-rule-dialog').close();$('#gate-rule-cancel').onclick=()=>$('#gate-rule-dialog').close();
 $('#refresh-gate-comparison').onclick=renderGateComparison;
+$('#baseline-results-tab').onclick=()=>showBacktestResultMode('baseline');$('#gated-results-tab').onclick=()=>showBacktestResultMode('gated');
 renderGateConfiguration();
