@@ -30,7 +30,7 @@ function classifyScore(value,bearish,bullish){return value>=bullish?'Bullish':va
 function actualDirection(actual,threshold=state.thresholds.actualReturn){if(actual>threshold)return 'Bullish';if(actual< -threshold)return 'Bearish';return 'Neutral'}
 function score(row){const comp=weightedComposite([row[2],row[3],row[4]],[state.main.fundamental,state.main.technical,state.main.catalyst]);const signal=classifyScore(comp,state.thresholds.bearish,state.thresholds.bullish);const rawActual=row[5],parsed=rawActual===undefined||rawActual===null||rawActual===''?null:Number(rawActual),actual=Number.isFinite(parsed)?parsed:null,actualSignal=actual===null?null:actualDirection(actual),correct=actualSignal!==null&&signal===actualSignal;return {...Object.fromEntries(['date','ticker','fundamental','technical','catalyst','actual'].map((k,i)=>[k,row[i]])),actual,actualSignal,composite:comp,signal,correct}}
 function renderEvaluation(){
-if(!submittedRecords){$('#results-panel').hidden=true;return}
+if(!submittedRecords){$('#results-panel').hidden=true;$('#backtest-results-empty').hidden=false;return}
 const records=submittedRecords;
 const evaluated=records.filter(r=>r.actual!==null&&Number.isFinite(Number(r.actual)));
 const correct=evaluated.filter(r=>r.correct).length;
@@ -45,6 +45,7 @@ const winRate=active.length?`${Math.round(activeWins/active.length*100)}%`:'—'
 const bullishWinRate=bullish?`${Math.round(bullishWins/bullish*100)}%`:'—';
 const bearishWinRate=bearish?`${Math.round(bearishWins/bearish*100)}%`:'—';
 $('#results-panel').hidden=false;
+$('#backtest-results-empty').hidden=true;
 $('#actual-threshold-note').textContent=`${state.thresholds.actualReturn}%`;$('#forward-period-result').textContent=`${state.forwardPeriod} trading day${state.forwardPeriod===1?'':'s'}`;
 $('#metrics').innerHTML=[
 ['Overall Accuracy',accuracy,`${correct} / ${evaluated.length} three-class matches: Bullish, Bearish, or Neutral`],
