@@ -55,7 +55,7 @@
           <p id="forward-message" class="muted"></p>
           <div id="forward-results" hidden>
             <section id="forward-baseline-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="forward-baseline-results-tab"><div id="forward-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3>Forward signals · Baseline</h3><p>Signals use the uploaded data and active allocation. No realized outcomes are included.</p></div><span id="forward-record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Forward signal</th></tr></thead><tbody id="forward-evaluation-body"></tbody></table></div></div></section>
-            <section id="forward-gated-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="forward-gated-results-tab" hidden><div id="forward-gated-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3 id="forward-gate-results-title">Gate System results</h3><p>Gate decisions evaluate each current signal. They do not change its baseline score or direction.</p></div><span id="forward-gated-record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Forward signal</th><th>Gate result</th><th>Gate details</th></tr></thead><tbody id="forward-gate-evaluation-body"></tbody></table></div></div><p class="gate-comparison-note">Gate rules filter or block signals; the baseline prediction remains unchanged. Missing fields follow each rule’s configured missing-data behavior.</p></section>
+            <section id="forward-gated-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="forward-gated-results-tab" hidden><div id="forward-gated-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3 id="forward-gate-results-title">Gate System results</h3><p>Kept tickers retain their baseline signal; rejected tickers show a Neutral gate signal.</p></div><span id="forward-gated-record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Forward signal</th><th>Gate signal</th><th>Gate result</th><th>Gate details</th></tr></thead><tbody id="forward-gate-evaluation-body"></tbody></table></div></div><p class="gate-comparison-note">Gate signal is derived from the gate result. Missing fields follow each rule’s configured missing-data behavior.</p></section>
           </div>
         </section>
 
@@ -102,6 +102,6 @@
       </main>
     </div>
     <script src="./app.js?v=gate-integration-2"></script>
-    <script src="./gate.js?v=gate-config-3"></script>
+    <script src="./gate.js?v=gate-config-4"></script>
   </body>
 </html>
