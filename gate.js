@@ -51,7 +51,7 @@ let editingGateRuleId=null;
 function persistGateSystems(message='Saved locally'){
   localStorage.setItem(GATE_STORAGE_KEY,JSON.stringify(gateSystems));
   const status=$('#gate-system-status');if(status){status.textContent=message;status.className='status good'}
-  renderGateSystemSelect();renderGateComparison();
+  renderGateSystemSelect();renderGateComparison();renderForwardGateResults();
 }
 function gateChanged(message='Saved locally'){
   activeGateSystem.name=$('#gate-system-name')?.value.trim()||activeGateSystem.name;
@@ -60,7 +60,7 @@ function gateChanged(message='Saved locally'){
 }
 function renderGateSystemSelect(){
   const select=$('#gate-system-select');if(!select)return;
-  const options=gateSystems.map(system=>`<option value="${esc(system.id)}">${esc(system.name)}</option>`).join('');select.innerHTML=options;select.value=activeGateSystem.id;const backtestSelect=$('#backtest-gate-select');if(backtestSelect){backtestSelect.innerHTML=options;backtestSelect.value=activeGateSystem.id}
+  const options=gateSystems.map(system=>`<option value="${esc(system.id)}">${esc(system.name)}</option>`).join('');select.innerHTML=options;select.value=activeGateSystem.id;const backtestSelect=$('#backtest-gate-select');if(backtestSelect){backtestSelect.innerHTML=options;backtestSelect.value=activeGateSystem.id}const forwardSelect=$('#forward-gate-select');if(forwardSelect){forwardSelect.innerHTML=options;forwardSelect.value=activeGateSystem.id}
   $('#gate-system-name').value=activeGateSystem.name;$('#delete-gate-system').disabled=gateSystems.length<2;
 }
 function gateGroupModeText(mode){return({and:'AND — all rules pass',or:'OR — any rule passes',at_least:'Minimum passing rules',custom:'Custom AND / OR connectors'})[mode]||'AND — all rules pass'}
@@ -99,7 +99,7 @@ function saveGateRuleFromEditor(){
   if(editingGateRuleId){Object.assign(activeGateSystem.rules.find(rule=>rule.id===editingGateRuleId),update)}else activeGateSystem.rules.push({id:makeGateId(),enabled:true,...update});
   $('#gate-rule-dialog').close();gateChanged('Question saved locally');toast('Gate question saved');
 }
-function renderGateConfiguration(){renderGateSystemSelect();$('#gate-group-combine').value=activeGateSystem.combineGroups;renderGateGroups();renderGateRules();renderGateComparison()}
+function renderGateConfiguration(){renderGateSystemSelect();$('#gate-group-combine').value=activeGateSystem.combineGroups;renderGateGroups();renderGateRules();renderGateComparison();renderForwardGateResults()}
 
 function gateKey(key){return String(key??'').toLowerCase().replace(/%/g,'_percent').replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')}
 function gateMissing(value){return value===undefined||value===null||String(value).trim()===''}
@@ -221,6 +221,20 @@ function renderBacktestGateResults(){
   ].map(item=>`<div class="card metric"><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
   $('#gate-backtest-body').innerHTML=decisions.map(({record,result})=>`<tr class="${result.passed?'':'gate-rejected-row'}"><td>${esc(record.date||'—')}</td><td><b>${esc(record.ticker)}</b></td><td class="num">${Number(record.fundamental).toFixed(1)}</td><td class="num">${Number(record.technical).toFixed(1)}</td><td class="num">${Number(record.catalyst).toFixed(1)}</td><td class="num"><b>${Number(record.composite).toFixed(1)}</b></td><td><span class="signal ${String(record.signal||'neutral').toLowerCase()}">${esc(record.signal||'—')}</span></td><td><span class="result ${result.passed?'correct':'incorrect'}">${result.passed?'Kept':'Rejected'}</span></td><td class="gate-detail-cell">${esc(result.detail)}</td><td class="num">${record.actual!==null&&Number.isFinite(Number(record.actual))?`${Number(record.actual)>0?'+':''}${Number(record.actual).toFixed(2)}%`:'—'}</td><td>${record.actualSignal?`<span class="signal ${record.actualSignal.toLowerCase()}">${esc(record.actualSignal)}</span>`:'—'}</td><td><span class="result ${record.actual!==null?(record.correct?'correct':'incorrect'):'neutral'}">${record.actual!==null?(record.correct?'Correct':'Incorrect'):'Awaiting actual'}</span></td></tr>`).join('');
 }
+let forwardResultMode='baseline';
+function showForwardResultMode(mode){
+  forwardResultMode=mode==='gated'?'gated':'baseline';const baseline=forwardResultMode==='baseline';
+  $('#forward-baseline-results-tab').classList.toggle('active',baseline);$('#forward-gated-results-tab').classList.toggle('active',!baseline);$('#forward-baseline-results-tab').setAttribute('aria-selected',String(baseline));$('#forward-gated-results-tab').setAttribute('aria-selected',String(!baseline));$('#forward-baseline-results-panel').hidden=!baseline;$('#forward-gated-results-panel').hidden=baseline;
+}
+function renderForwardGateResults(){
+  const body=$('#forward-gate-evaluation-body');if(!body)return;
+  if(!forwardRecords?.length){$('#forward-gated-metrics').innerHTML='';$('#forward-gated-record-count').textContent='';body.innerHTML='';return}
+  const system=gateSystems.find(item=>item.id===activeGateSystem.id)||activeGateSystem,decisions=forwardRecords.map(record=>({record,result:evaluateGateSystem(record,system)})),kept=decisions.filter(item=>item.result.passed).length,rejected=decisions.length-kept;
+  $('#forward-gate-results-title').textContent=`${system.name} · Forward signals`;
+  $('#forward-gated-record-count').textContent=`${kept} kept · ${rejected} rejected`;
+  $('#forward-gated-metrics').innerHTML=[['Tickers',decisions.length,'Matched across all three input files'],['Kept',kept,'Passed the selected Gate System'],['Rejected',rejected,'Failed the selected Gate System'],['Gate System',system.name,'Baseline scores and signals remain unchanged']].map(item=>`<div class="card metric"><span>${item[0]}</span><strong>${item[1]}</strong><small>${item[2]}</small></div>`).join('');
+  body.innerHTML=decisions.map(({record,result})=>`<tr class="${result.passed?'':'gate-rejected-row'}"><td><b>${esc(record.ticker)}</b></td><td class="num">${Number(record.fundamental).toFixed(1)}</td><td class="num">${Number(record.technical).toFixed(1)}</td><td class="num">${Number(record.catalyst).toFixed(1)}</td><td class="num"><b>${Number(record.composite).toFixed(1)}</b></td><td><span class="signal ${String(record.signal||'neutral').toLowerCase()}">${esc(record.signal||'—')}</span></td><td><span class="result ${result.passed?'correct':'incorrect'}">${result.passed?'Kept':'Rejected'}</span></td><td class="gate-detail-cell">${esc(result.detail)}</td></tr>`).join('');
+}
 function renderGateComparison(){
   const empty=$('#gate-comparison-empty'),wrap=$('#gate-comparison-wrap'),rows=$('#gate-comparison-rows'),decisionCard=$('#gate-decision-card');if(!empty||!wrap)return;renderBacktestGateResults();
   if(!submittedRecords?.length){empty.hidden=false;wrap.hidden=true;decisionCard.hidden=true;return}
@@ -238,9 +252,12 @@ const renderEvaluationBeforeGate=renderEvaluation;
 renderEvaluation=function(...args){const result=renderEvaluationBeforeGate(...args);renderGateComparison();return result};
 const renderAnalystBeforeGate=renderAnalystResults;
 renderAnalystResults=function(...args){const result=renderAnalystBeforeGate(...args);renderGateComparison();return result};
+const renderForwardBeforeGate=renderForwardResults;
+renderForwardResults=function(...args){const result=renderForwardBeforeGate(...args);renderForwardGateResults();return result};
 
 $('#gate-system-select').onchange=event=>{activeGateSystem=gateSystems.find(system=>system.id===event.target.value)||gateSystems[0];renderGateConfiguration()};
 $('#backtest-gate-select').onchange=event=>{activeGateSystem=gateSystems.find(system=>system.id===event.target.value)||gateSystems[0];renderGateConfiguration()};
+$('#forward-gate-select').onchange=event=>{activeGateSystem=gateSystems.find(system=>system.id===event.target.value)||gateSystems[0];renderGateConfiguration()};
 $('#gate-system-name').onchange=event=>{const name=event.target.value.trim();if(!name){event.target.value=activeGateSystem.name;return toast('Enter a Gate System name')}activeGateSystem.name=name;gateChanged()};
 $('#save-gate-system').onclick=()=>{const name=$('#gate-system-name').value.trim();if(!name)return toast('Enter a Gate System name');activeGateSystem.name=name;persistGateSystems('Saved');toast('Gate System saved in this browser')};
 $('#new-gate-system').onclick=()=>{const copy=gateClone(activeGateSystem);copy.id=makeGateId();copy.name=`${activeGateSystem.name} copy`;gateSystems.push(copy);activeGateSystem=copy;persistGateSystems('New system saved locally');renderGateConfiguration();toast('New Gate System created')};
@@ -251,4 +268,5 @@ $('#gate-min-groups').onchange=event=>{activeGateSystem.minPassingGroups=Math.ma
 $('#add-gate-rule').onclick=()=>openGateRule();$('#gate-rule-form').onsubmit=event=>{event.preventDefault();saveGateRuleFromEditor()};$('#gate-rule-close').onclick=()=>$('#gate-rule-dialog').close();$('#gate-rule-cancel').onclick=()=>$('#gate-rule-dialog').close();
 $('#refresh-gate-comparison').onclick=renderGateComparison;
 $('#baseline-results-tab').onclick=()=>showBacktestResultMode('baseline');$('#gated-results-tab').onclick=()=>showBacktestResultMode('gated');
+$('#forward-baseline-results-tab').onclick=()=>showForwardResultMode('baseline');$('#forward-gated-results-tab').onclick=()=>showForwardResultMode('gated');
 renderGateConfiguration();
