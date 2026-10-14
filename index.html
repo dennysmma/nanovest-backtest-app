@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=forward-gate-tabs-1" />
+    <link rel="stylesheet" href="./styles.css?v=backtest-gate-signal-1" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
@@ -42,7 +42,7 @@
           <section id="baseline-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="baseline-results-tab"><div id="metrics" class="metrics"></div>
             <div class="card"><div class="card-head"><div><h3>Prediction vs. actual · Baseline</h3><p>Signals use the submitted inputs and current allocation. Actual outcome direction uses a ±<b id="actual-threshold-note">1%</b> return threshold.</p></div><span id="record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Signal</th><th>Actual price history</th><th>Actual return</th><th>Actual signal</th><th>Result</th></tr></thead><tbody id="evaluation-body"></tbody></table></div></div>
           </section>
-          <section id="gated-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="gated-results-tab" hidden><div id="gated-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3 id="gated-backtest-title">Gate System results</h3><p>Metrics use eligible records only. The table lists every record and marks gate rejections so you can see what changed.</p></div><span id="gated-record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Signal</th><th>Gate result</th><th>Gate details</th><th>Actual return</th><th>Actual signal</th><th>Result</th></tr></thead><tbody id="gate-backtest-body"></tbody></table></div></div><p class="gate-comparison-note">Gate rules filter or block signals; they do not recalculate the baseline prediction. Compounded return is descriptive across records, not a portfolio simulation.</p></section>
+          <section id="gated-results-panel" class="backtest-result-panel" role="tabpanel" aria-labelledby="gated-results-tab" hidden><div id="gated-metrics" class="metrics"></div><div class="card"><div class="card-head"><div><h3 id="gated-backtest-title">Gate System results</h3><p>Metrics use eligible records only. The table lists every record and marks gate rejections so you can see what changed.</p></div><span id="gated-record-count" class="muted"></span></div><div class="table-wrap"><table><thead><tr><th>Date</th><th>Ticker</th><th>Fundamental</th><th>Technical</th><th>Catalyst</th><th>Composite</th><th>Signal</th><th>Gate signal</th><th>Gate result</th><th>Gate details</th><th>Actual return</th><th>Actual signal</th><th>Result</th></tr></thead><tbody id="gate-backtest-body"></tbody></table></div></div><p class="gate-comparison-note">Gate signal retains the baseline direction for kept records; rejected records show Neutral. Gate rules do not recalculate the baseline prediction. Compounded return is descriptive across records, not a portfolio simulation.</p></section>
           </div>
         </section>
 
@@ -102,6 +102,6 @@
       </main>
     </div>
     <script src="./app.js?v=gate-integration-2"></script>
-    <script src="./gate.js?v=gate-config-4"></script>
+    <script src="./gate.js?v=gate-config-5"></script>
   </body>
 </html>
