@@ -16,9 +16,9 @@ CSV uploads work fully offline. Excel (`.xlsx` / `.xls`) previews use the SheetJ
 
 ## Weekly Updated
 
-The **Weekly Updated** page searches public Google News RSS coverage through the RSS2JSON public API, selects headlines from the last seven days, and links each tracked ticker to related articles. It ranks up to 10 matches by headline count. Bullish or bearish outlooks require directional wording in the headlines; mixed and non-directional coverage stays visible with an explicit label. Unmatched companies are excluded. The browser checks on page load, no more than once every seven days, and keeps up to 104 snapshots in that browser's local storage. Manual refreshes are saved as separate snapshots.
+The **Weekly Updated** page displays a snapshot generated from Google News RSS. The weekly NanoMind automation triggers the GitHub Actions workflow every Monday at 09:00 WIB; the workflow collects and analyzes public headlines, then deploys the refreshed snapshot with the site. Opening the page loads the latest published snapshot and keeps up to 104 snapshots in that browser's local storage. The **Refresh update** button reloads the latest published snapshot; it does not start a new news scan.
 
-This static prototype needs an internet connection and a browser that permits the public feed request. It cannot refresh while closed or share history between browsers. A server-side scheduled feed is needed for unattended or shared updates.
+The update now refreshes on the server schedule even while the page is closed. Each browser still keeps its own history. If a scheduled feed run fails, the last successfully deployed snapshot remains available.
 
 ## Evaluation rule
 
