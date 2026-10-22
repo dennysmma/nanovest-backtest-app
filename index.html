@@ -7,14 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./styles.css?v=backtest-gate-signal-1" />
+    <link rel="stylesheet" href="./styles.css?v=dashboard-close-history-1" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <div class="shell">
       <aside class="sidebar">
         <div class="brand"><div class="brand-mark">⌁</div><div><strong>Prediction Lab</strong><span>Stock prediction backtester</span></div></div>
-        <nav><span class="nav-group">WORKSPACE</span>
+        <nav><span class="nav-group">DASHBOARD</span>
+          <button class="nav-item" data-view="dashboard" data-title="Dashboard"><span>▤</span> Dashboard</button>
+          <span class="nav-group">WORKSPACE</span>
           <button class="nav-item active" data-view="workspace" data-title="Back Test"><span>▦</span> Back Test</button>
           <button class="nav-item" data-view="forward" data-title="Forward Test"><span>➜</span> Forward Test</button>
           <button class="nav-item" data-view="analyst" data-title="Analyst Signal"><span>◎</span> Analyst Signal</button>
@@ -29,6 +31,20 @@
       </aside>
       <main>
         <header class="topbar"><div class="crumb"><span>Prediction Lab</span><b>›</b><strong id="page-title">Back Test</strong></div><div class="top-actions"><span id="validation-chip" class="status good">Weights 100%</span><button class="button secondary allocation-only" id="reset-all">Reset</button><button class="button primary allocation-only" id="save-config">Save configuration</button></div></header>
+
+        <section id="dashboard" class="view">
+          <div class="intro"><div><h2>Top 25 U.S. technology stocks</h2><p>Import a price-history file for your top-25 ticker universe to view closing-price statistics.</p></div><div class="dashboard-source-actions"><label class="button secondary dashboard-upload-label" for="dashboard-price-file">Upload price history</label><input id="dashboard-price-file" class="file-input" type="file" accept=".csv,.xlsx,.xls"><button id="dashboard-use-backtest" class="button secondary" type="button" hidden>Use Back Test history</button></div></div>
+          <div class="analyst-tabs dashboard-tabs" role="tablist" aria-label="Dashboard data"><button id="close-history-tab" class="analyst-tab active" type="button" role="tab" aria-selected="true" aria-controls="close-history-panel">Close Price History</button></div>
+          <section id="close-history-panel" class="analyst-panel" role="tabpanel" aria-labelledby="close-history-tab">
+            <div class="info-banner dashboard-source-note"><span>ⓘ</span><div><strong id="dashboard-source-title">Waiting for price history</strong><p id="dashboard-source-description">Upload a file with Date, Ticker, and Close columns, or upload price history on the Back Test page. The dashboard summarizes each stock ticker present in the file; SPY is excluded.</p></div></div>
+            <div id="dashboard-price-empty" class="backtest-results-empty" role="status">No closing-price history is loaded yet.</div>
+            <div id="dashboard-price-content" hidden>
+              <div id="dashboard-price-metrics" class="metrics dashboard-price-metrics"></div>
+              <div class="card dashboard-chart-card"><div class="card-head"><div><h3 id="dashboard-chart-title">Closing-price history</h3><p id="dashboard-chart-subtitle">Daily closing prices from the selected history</p></div><label class="dashboard-ticker-select">Ticker <select id="dashboard-ticker-select" aria-label="Select ticker for closing-price chart"></select></label></div><div id="dashboard-price-chart" class="dashboard-price-chart"></div><div id="dashboard-chart-stats" class="dashboard-chart-stats"></div></div>
+              <div class="card dashboard-price-table-card"><div class="card-head"><div><h3>Close-price statistics by ticker</h3><p>Daily close, trailing return, full-period range, and coverage.</p></div><span id="dashboard-ticker-count" class="muted"></span></div><div class="table-wrap"><table class="dashboard-price-table"><thead><tr><th>Ticker</th><th>Latest date</th><th>Latest close</th><th>Daily change</th><th>20-session change</th><th>Period high</th><th>Period low</th><th>Average close</th><th>Sessions</th></tr></thead><tbody id="dashboard-price-rows"></tbody></table></div></div>
+            </div>
+          </section>
+        </section>
 
         <section id="workspace" class="view active">
           <div class="intro"><div><h2>Back test data</h2><p>Upload historical inputs and outcomes to evaluate prediction signals.</p></div><div class="intro-actions"><button id="load-sample" class="button secondary">Load sample data</button><button id="submit-data" class="button primary">Run backtest</button></div></div>
@@ -101,7 +117,8 @@
         <div id="toast" class="toast"></div>
       </main>
     </div>
-    <script src="./app.js?v=forward-metric-aware-score-3"></script>
+    <script src="./app.js?v=dashboard-close-history-1"></script>
     <script src="./gate.js?v=gate-config-5"></script>
+    <script src="./dashboard.js?v=dashboard-close-history-1"></script>
   </body>
 </html>
