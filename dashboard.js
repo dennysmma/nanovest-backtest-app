@@ -1,6 +1,10 @@
 let dashboardPriceUpload = null;
-let dashboardPriceSource = 'backtest';
+let dashboardPriceSource = 'automatic';
 let dashboardPriceSeries = [];
+let dashboardPublishedPriceHistory = null;
+let dashboardPriceLoading = true;
+let dashboardPriceLoadError = '';
+let dashboardPriceRequest = null;
 
 const dashboardMoney = value => Number.isFinite(value)
   ? `$${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -10,8 +14,16 @@ const dashboardPercent = value => Number.isFinite(value)
   : '—';
 
 function getDashboardPriceData() {
-  return dashboardPriceSource === 'dashboard'
-    ? dashboardPriceUpload
+  if (dashboardPriceSource === 'dashboard') return dashboardPriceUpload;
+  if (dashboardPriceSource === 'backtest') return uploads.priceHistory;
+  return dashboardPublishedPriceHistory || uploads.priceHistory;
+}
+
+function getDashboardPriceFile() {
+  if (dashboardPriceSource === 'dashboard') return dashboardPriceUpload;
+  if (dashboardPriceSource === 'backtest') return uploads.priceHistory;
+  return dashboardPublishedPriceHistory
+    ? { name: 'Automatic daily price feed' }
     : uploads.priceHistory;
 }
 
@@ -58,7 +70,7 @@ function closeHistoryStats(item) {
 
 function renderDashboard() {
   const data = getDashboardPriceData();
-  const file = dashboardPriceSource === 'dashboard' ? dashboardPriceUpload : uploads.priceHistory;
+  const file = getDashboardPriceFile();
   const series = collectDashboardSeries(data?.data);
   const empty = $('#dashboard-price-empty');
   const content = $('#dashboard-price-content');
@@ -68,10 +80,14 @@ function renderDashboard() {
   if (!series.length) {
     empty.hidden = false;
     content.hidden = true;
-    $('#dashboard-source-title').textContent = file ? 'No usable close-price rows found' : 'Waiting for price history';
-    $('#dashboard-source-description').textContent = file
-      ? 'The file needs Date, Ticker (or Symbol), and positive Close values. Upload a corrected CSV or Excel file.'
-      : 'Upload a file with Date, Ticker, and Close columns, or upload price history on the Back Test page. Each stock ticker in the file is summarized; SPY is excluded.';
+    $('#dashboard-source-title').textContent = dashboardPriceLoading
+      ? 'Loading automatic price history'
+      : file ? 'No usable close-price rows found' : dashboardPriceLoadError ? 'Automatic price history is unavailable' : 'Waiting for price history';
+    $('#dashboard-source-description').textContent = dashboardPriceLoading
+      ? 'Checking the latest published daily close data…'
+      : file ? 'The file needs Date, Ticker (or Symbol), and positive Close values. Upload a corrected CSV or Excel file.'
+        : dashboardPriceLoadError ? `${dashboardPriceLoadError} You can still upload a file or load price history on the Back Test page.`
+          : 'The automatic feed is not configured yet. Upload a file with Date, Ticker, and Close columns, or load price history on the Back Test page.';
     return;
   }
 
@@ -80,9 +96,18 @@ function renderDashboard() {
   const dates = allRows.map(row => row.date).sort();
   const latestDate = dates[dates.length - 1];
   const earliestDate = dates[0];
+  const feedUpdated = dashboardPriceSource === 'automatic' && dashboardPublishedPriceHistory;
   const filename = file?.name || 'Back Test price history';
-  $('#dashboard-source-title').textContent = `${filename} · ${dashboardPriceSeries.length} stock tickers`;
-  $('#dashboard-source-description').textContent = `Showing closing prices from ${earliestDate} through ${latestDate}. Statistics use the Close column and the tickers supplied in this file; SPY is excluded.`;
+  $('#dashboard-source-title').textContent = feedUpdated
+    ? `${dashboardPublishedPriceHistory.provider || 'Automatic feed'} · ${dashboardPriceSeries.length} stock tickers`
+    : `${filename} · ${dashboardPriceSeries.length} stock tickers`;
+  const updatedText = feedUpdated && dashboardPublishedPriceHistory.updatedAt
+    ? ` Feed updated ${new Date(dashboardPublishedPriceHistory.updatedAt).toLocaleString()}.`
+    : '';
+  const refreshErrorText = feedUpdated && dashboardPriceLoadError
+    ? ` Latest refresh failed: ${dashboardPriceLoadError}`
+    : '';
+  $('#dashboard-source-description').textContent = `Showing closing prices from ${earliestDate} through ${latestDate}.${updatedText}${refreshErrorText} Statistics use the Close column; SPY is excluded.`;
   empty.hidden = true;
   content.hidden = false;
   $('#dashboard-price-metrics').innerHTML = [
@@ -188,10 +213,42 @@ async function handleDashboardPriceUpload(event) {
   }
 }
 
+async function refreshDashboardPriceFeed() {
+  if (dashboardPriceRequest) return dashboardPriceRequest;
+  dashboardPriceLoading = true;
+  dashboardPriceLoadError = '';
+  renderDashboard();
+  dashboardPriceRequest = (async () => {
+    try {
+      const url = new URL('price-history.json', document.baseURI);
+      url.searchParams.set('_', String(Date.now()));
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) throw Error(`Automatic feed returned ${response.status}.`);
+      const payload = await response.json();
+      if (!Array.isArray(payload.data) || !payload.updatedAt) throw Error('Automatic feed has an invalid format.');
+      if (!collectDashboardSeries(payload.data).length) throw Error('Automatic feed contains no valid closing prices.');
+      dashboardPublishedPriceHistory = payload;
+      dashboardPriceSource = 'automatic';
+      dashboardPriceLoadError = '';
+      toast('Automatic price history refreshed');
+    } catch (error) {
+      dashboardPriceLoadError = error.message;
+      toast('Could not refresh automatic price history');
+    } finally {
+      dashboardPriceLoading = false;
+      dashboardPriceRequest = null;
+      renderDashboard();
+    }
+  })();
+  return dashboardPriceRequest;
+}
+
 $('#dashboard-price-file').onchange = handleDashboardPriceUpload;
 $('#dashboard-use-backtest').onclick = () => {
   dashboardPriceSource = 'backtest';
   renderDashboard();
 };
+$('#dashboard-refresh-prices').onclick = () => refreshDashboardPriceFeed();
 $$('.nav-item[data-view="dashboard"]').forEach(button => button.addEventListener('click', renderDashboard));
 renderDashboard();
+refreshDashboardPriceFeed();
